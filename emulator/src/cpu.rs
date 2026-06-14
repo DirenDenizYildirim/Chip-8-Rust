@@ -37,4 +37,18 @@ impl Chip8 {
 
         chip8
     }
+
+    pub fn load_rom(&mut self, rom: &[u8]) {
+        self.memory[0x200..0x200 + rom.len()].copy_from_slice(rom);
+    }
+
+    pub fn fetch(&mut self) -> u16 {
+        let opcode = (self.memory[self.pc as usize] as u16) << 8 | self.memory[self.pc as usize] as u16;
+        // indexing an array needs usize so thats why I made pc into usize and yeah I forgot about
+        // it at first tho now I wont forget about it
+
+        self.pc = self.pc + 2;
+
+        opcode
+    }
 }
