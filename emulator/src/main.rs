@@ -1,3 +1,10 @@
-mod cpu;
+use crate::cpu::Chip8;
 
-fn main() {}
+mod cpu;
+mod font;
+
+fn main() {
+    let _chip8 = Chip8::new();
+
+    println!("initilized blah blah blah");
+}
