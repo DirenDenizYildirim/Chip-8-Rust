@@ -43,9 +43,9 @@ impl Chip8 {
     }
 
     pub fn fetch(&mut self) -> u16 {
-        let opcode = (self.memory[self.pc as usize] as u16) << 8 | self.memory[self.pc as usize] as u16;
+        let opcode = (self.memory[self.pc as usize] as u16) << 8 | self.memory[(self.pc + 1) as usize] as u16;
         // indexing an array needs usize so thats why I made pc into usize and yeah I forgot about
-        // it at first tho now I wont forget about it
+        // it at first at least I wont forget about it now
 
         self.pc = self.pc + 2;
 
