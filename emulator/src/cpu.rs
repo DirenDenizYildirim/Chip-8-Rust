@@ -51,4 +51,23 @@ impl Chip8 {
 
         opcode
     }
+
+    pub fn execute(&mut self, opcode: u16) {
+        let nibbles = ((opcode & 0xF000) >> 12, (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4, (opcode & 0x000F));
+
+        let x = ((opcode & 0x0F00) >> 8) as usize;
+        let y = ((opcode & 0x00F0) >> 4) as usize;
+        let n = (opcode & 0x000F) as usize;
+        let nn = (opcode & 0x00FF) as u8;
+        let nnn = opcode & 0x0FFF;
+
+        match nibbles {
+            (0x0, 0x0, 0xE, 0x0) => self.display = [[false; 64]; 32],
+            (0x1, _, _, _) => self.pc = nnn,
+            (0x6, _, _, _) => self.registers[x] = nn,
+            (0x7, _, _, _) => self.registers[x] = self.registers[x].wrapping_add(nn),
+            (0xA, _, _, _) => self.index = nnn,
+            _ => println!("{:#06X}", opcode),
+        };
+    }
 }

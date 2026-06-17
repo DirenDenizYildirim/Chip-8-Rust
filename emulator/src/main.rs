@@ -11,6 +11,8 @@ fn main() {
     println!("the rom is {}", rom.len());
     chip.load_rom(&rom);
 
-    let opcode = chip.fetch();
-    println!("first opcode: {:#06X}", opcode);
+    for _ in 0..20 {
+        let opcode = chip.fetch();
+        chip.execute(opcode);
+    }
 }
