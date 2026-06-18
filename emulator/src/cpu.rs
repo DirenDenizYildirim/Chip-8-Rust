@@ -67,7 +67,30 @@ impl Chip8 {
             (0x6, _, _, _) => self.registers[x] = nn,
             (0x7, _, _, _) => self.registers[x] = self.registers[x].wrapping_add(nn),
             (0xA, _, _, _) => self.index = nnn,
+            (0xD, _, _, _) => self.draw(x, y, n),
             _ => println!("{:#06X}", opcode),
         };
+    }
+
+    pub fn draw(&mut self, x: usize, y: usize, n: usize) {
+        let vx = self.registers[x] as usize;
+        let vy = self.registers[y] as usize;
+
+        self.registers[0xF] = 0;
+
+        for row in 0..n {
+            let sprite_byte = self.memory[self.index as usize + row];
+            for col in 0..8 {
+                if sprite_byte & (0x80 >> col) != 0 {
+                    let px = (vx + col) % 64;
+                    let py = (vy + row) % 32;
+
+                    if self.display[py][px] {
+                        self.registers[0xF] = 1;
+                    }
+                    self.display[py][px] ^= true;
+                }
+            }
+        }
     }
 }
