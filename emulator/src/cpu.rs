@@ -65,7 +65,7 @@ impl Chip8 {
         match nibbles {
             (0x0, 0x0, 0xE, 0x0) => self.display = [[false; 64]; 32],
             (0x0, 0x0, 0xE, 0xE) => {
-                self.pc -= 1;
+                self.sp -= 1;
                 self.pc = self.stack[self.sp];
             }
             (0x1, _, _, _) => self.pc = nnn,
@@ -79,6 +79,35 @@ impl Chip8 {
             (0x5, _, _, 0x0) => if self.registers[x] == self.registers[y] {self.pc += 2},
             (0x6, _, _, _) => self.registers[x] = nn,
             (0x7, _, _, _) => self.registers[x] = self.registers[x].wrapping_add(nn),
+            (0x8, _, _, 0x0) => self.registers[x] = self.registers[y],
+            (0x8, _, _, 0x1) => self.registers[x] |= self.registers[y],
+            (0x8, _, _, 0x2) => self.registers[x] &= self.registers[y],
+            (0x8, _, _, 0x3) => self.registers[x] ^= self.registers[y],
+            (0x8, _, _, 0x4) => {
+                let (result, carry) = self.registers[x].overflowing_add(self.registers[y]);
+                self.registers[x] = result;
+                self.registers[0xF] = carry as u8; 
+            },
+            (0x8, _, _, 0x5) => { 
+                let (result, borrow) = self.registers[x].overflowing_sub(self.registers[y]);
+                self.registers[x] = result;
+                self.registers[0xF] = (!borrow) as u8; // I aint sure about this one fr
+            }
+            (0x8, _, _, 0x6) => {
+                let lsb = self.registers[x] & 0x1;
+                self.registers[x] >>= 1;
+                self.registers[0xF] = lsb;
+            },
+            (0x8, _, _, 0x7) => {
+                let (result, borrow) = self.registers[y].overflowing_sub(self.registers[x]);
+                self.registers[x] = result;
+                self.registers[0xF] = (!borrow) as u8;
+            }
+            (0x8, _, _, 0xE) => {
+                let tb = self.registers[x] >> 7;
+                self.registers[x] <<= 1;
+                self.registers[0xF] = tb;
+            }
             (0x9, _, _, 0x0) => if self.registers[x] != self.registers[y] {self.pc += 2},
             (0xA, _, _, _) => self.index = nnn,
             (0xB, _, _, _) => self.pc = nnn + self.registers[0] as u16,
