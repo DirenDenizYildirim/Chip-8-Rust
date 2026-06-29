@@ -93,4 +93,13 @@ impl Chip8 {
             }
         }
     }
+
+    pub fn render(&mut self) {
+        for row in &self.display {
+            for &pixel in row {
+                print!("{}", if pixel { '█' } else { ' ' });
+            }
+            println!();
+        }
+    }
 }
