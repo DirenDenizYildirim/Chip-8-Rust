@@ -61,12 +61,27 @@ impl Chip8 {
         let nn = (opcode & 0x00FF) as u8;
         let nnn = opcode & 0x0FFF;
 
+        #[rustfmt::skip] // same thing again so my formatter doesnt colapse stuff
         match nibbles {
             (0x0, 0x0, 0xE, 0x0) => self.display = [[false; 64]; 32],
+            (0x0, 0x0, 0xE, 0xE) => {
+                self.pc -= 1;
+                self.pc = self.stack[self.sp];
+            }
             (0x1, _, _, _) => self.pc = nnn,
+            (0x2, _, _, _) => {
+                self.stack[self.sp] = self.pc;
+                self.sp += 1;
+                self.pc = nnn;
+            }
+            (0x3, _, _, _) => if self.registers[x] == nn {self.pc += 2},
+            (0x4, _, _, _) => if self.registers[x] != nn {self.pc += 2},
+            (0x5, _, _, 0x0) => if self.registers[x] == self.registers[y] {self.pc += 2},
             (0x6, _, _, _) => self.registers[x] = nn,
             (0x7, _, _, _) => self.registers[x] = self.registers[x].wrapping_add(nn),
+            (0x9, _, _, 0x0) => if self.registers[x] != self.registers[y] {self.pc += 2},
             (0xA, _, _, _) => self.index = nnn,
+            (0xB, _, _, _) => self.pc = nnn + self.registers[0] as u16,
             (0xD, _, _, _) => self.draw(x, y, n),
             _ => println!("{:#06X}", opcode),
         };

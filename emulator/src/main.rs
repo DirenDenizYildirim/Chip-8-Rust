@@ -11,8 +11,9 @@ fn main() {
     println!("the rom is {}", rom.len());
     chip.load_rom(&rom);
 
-    for _ in 0..20 {
+    for _ in 0..30 {
         let opcode = chip.fetch();
         chip.execute(opcode);
     }
+    chip.render();
 }
